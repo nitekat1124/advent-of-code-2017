@@ -2,7 +2,7 @@ from utils.puzzle_reader import PuzzleReader
 
 
 class SolutionBase:
-    def __init__(self, day_num: int = -1, is_raw: int = 0):
+    def __init__(self, day_num: int = -1, is_raw: bool = False):
         self.day_num = day_num
         self.is_raw = is_raw
         self.data = PuzzleReader.get_puzzle_input(self.day_num, self.is_raw)
