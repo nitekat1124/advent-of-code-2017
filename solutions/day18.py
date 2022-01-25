@@ -45,9 +45,7 @@ class Solution(SolutionBase):
             elif inst[0] == "mod":
                 registers[inst[1]] %= registers[inst[2]] if inst[2] in registers else int(inst[2])
             elif inst[0] == "rcv":
-                # v = sound[-1] if len(sound) else 0
                 if registers[inst[1]] != 0:
-                    # sound.pop()
                     return sound[-1]
             elif inst[0] == "jgz":
                 if registers[inst[1]] > 0:
@@ -56,48 +54,48 @@ class Solution(SolutionBase):
         return sound[-1]
 
     def part2(self, data):
-        self.q = [[], []]
-        self.i = [0, 0]
-        self.r = [defaultdict(int), defaultdict(int)]
-        self.r[0]["p"] = 0
-        self.r[1]["p"] = 1
-        self.s = [0, 0]
+        self.programs = [
+            {"queue": [], "register": defaultdict(int), "i": 0, "s": 0},
+            {"queue": [], "register": defaultdict(int), "i": 0, "s": 0},
+        ]
+        self.programs[0]["register"]["p"] = 0
+        self.programs[1]["register"]["p"] = 1
 
         while 1:
             r = self.run(data)
-            if r is not None and len(self.q[0]) == 0 and len(self.q[1]) == 0:
+            if r is not None and len(self.programs[0]["queue"]) == 0 and len(self.programs[1]["queue"]) == 0:
                 return r
 
     def run(self, data):
         jumps = []
         for pid in [0, 1]:
             jmp = 0
-            if self.i[pid] < len(data):
-                inst = data[self.i[pid]].split()
+            if self.programs[pid]["i"] < len(data):
+                inst = data[self.programs[pid]["i"]].split()
                 jmp = 1
                 if inst[0] == "snd":
-                    v = self.r[pid][inst[1]] if inst[1] in self.r[pid] else int(inst[1])
-                    self.q[1 - pid] += [v]
-                    self.s[pid] += 1
+                    v = self.programs[pid]["register"][inst[1]] if inst[1] in self.programs[pid]["register"] else int(inst[1])
+                    self.programs[1 - pid]["queue"] += [v]
+                    self.programs[pid]["s"] += 1
                 elif inst[0] == "set":
-                    self.r[pid][inst[1]] = self.r[pid][inst[2]] if inst[2] in self.r[pid] else int(inst[2])
+                    self.programs[pid]["register"][inst[1]] = self.programs[pid]["register"][inst[2]] if inst[2] in self.programs[pid]["register"] else int(inst[2])
                 elif inst[0] == "add":
-                    self.r[pid][inst[1]] += self.r[pid][inst[2]] if inst[2] in self.r[pid] else int(inst[2])
+                    self.programs[pid]["register"][inst[1]] += self.programs[pid]["register"][inst[2]] if inst[2] in self.programs[pid]["register"] else int(inst[2])
                 elif inst[0] == "mul":
-                    self.r[pid][inst[1]] *= self.r[pid][inst[2]] if inst[2] in self.r[pid] else int(inst[2])
+                    self.programs[pid]["register"][inst[1]] *= self.programs[pid]["register"][inst[2]] if inst[2] in self.programs[pid]["register"] else int(inst[2])
                 elif inst[0] == "mod":
-                    self.r[pid][inst[1]] %= self.r[pid][inst[2]] if inst[2] in self.r[pid] else int(inst[2])
+                    self.programs[pid]["register"][inst[1]] %= self.programs[pid]["register"][inst[2]] if inst[2] in self.programs[pid]["register"] else int(inst[2])
                 elif inst[0] == "rcv":
-                    if len(self.q[pid]) > 0:
-                        self.r[pid][inst[1]] = self.q[pid].pop(0)
+                    if len(self.programs[pid]["queue"]) > 0:
+                        self.programs[pid]["register"][inst[1]] = self.programs[pid]["queue"].pop(0)
                     else:
                         jmp = 0
                 elif inst[0] == "jgz":
-                    t = self.r[pid][inst[1]] if inst[1] in self.r[pid] else int(inst[1])
+                    t = self.programs[pid]["register"][inst[1]] if inst[1] in self.programs[pid]["register"] else int(inst[1])
                     if t > 0:
-                        jmp = self.r[pid][inst[2]] if inst[2] in self.r[pid] else int(inst[2])
-                self.i[pid] += jmp
+                        jmp = self.programs[pid]["register"][inst[2]] if inst[2] in self.programs[pid]["register"] else int(inst[2])
+                self.programs[pid]["i"] += jmp
             jumps += [jmp]
         if jumps == [0, 0]:
-            return self.s[1]
+            return self.programs[1]["s"]
         return None
