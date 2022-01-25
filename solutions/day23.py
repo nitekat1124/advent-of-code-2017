@@ -74,11 +74,43 @@ class Solution(SolutionBase):
         return registers["h"]
     """
 
-    def part2(self, data):
+    """
+    def part2_alt(self, data):
         h = 0
         for x in range(107900, 124900 + 1, 17):
             for i in range(2, x):
                 if x % i == 0:
                     h += 1
                     break
-        print(h)
+        return h
+    """
+
+    def part2(self, data):
+        a, b, c, d, e, f, g, h = 1, 0, 0, 0, 0, 0, 0, 0
+
+        b = 79
+        c = b
+        if a != 0:
+            b = b * 100 + 100000
+            c = b + 17000
+
+        run_first_time = True
+        while run_first_time or g != 0:
+            run_first_time = False
+            f = 1
+            d = 2
+            e = 2
+
+            while d * e <= b:
+                if b % d == 0:
+                    f = 0
+                    break
+                d += 1
+
+            if f == 0:
+                h += 1
+
+            g = b - c
+            b += 17
+
+        return h
